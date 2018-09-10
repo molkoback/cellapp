@@ -18,9 +18,24 @@ struct _ContourParameters {
 	int y;        // y coordinate
 	double perim; // Perimeter
 	double area;  // Area
-	float angle;  // Minimum rounding rectangle angle
 	double dist;  // Distance from the largest cell
+	double ratio; // Longer side / shorter side
 };
+
+void Analyzer::contourXY(const CVContour &cnt, int &x, int &y)
+{
+	cv::Moments moments = cv::moments(cnt);
+	x = moments.m10 / moments.m00;
+	y = moments.m01 / moments.m00;
+}
+
+double Analyzer::contourRatio(const CVContour &cnt)
+{
+	cv::RotatedRect rect = cv::minAreaRect(cnt);
+	double w =  rect.size.width;
+	double h = rect.size.height;
+	return w > h ? w / h : h / w;
+}
 
 void Analyzer::process(CVContours &contours, std::vector<ContourParameters> &params)
 {
@@ -30,9 +45,7 @@ void Analyzer::process(CVContours &contours, std::vector<ContourParameters> &par
 	for (const auto &cnt : contours) {
 		ContourParameters p;
 		
-		cv::Moments moments = cv::moments(cnt);
-		p.x = moments.m10 / moments.m00;
-		p.y = moments.m01 / moments.m00;
+		contourXY(cnt, p.x, p.y);
 		
 		p.perim = cv::arcLength(cnt, true);
 		p.area = cv::contourArea(cnt);
@@ -42,8 +55,7 @@ void Analyzer::process(CVContours &contours, std::vector<ContourParameters> &par
 			largest_y = p.y;
 		}
 		
-		cv::RotatedRect rect = cv::minAreaRect(cnt);
-		p.angle = rect.angle;
+		p.ratio = this->contourRatio(cnt);
 		
 		params.push_back(p);
 	}
@@ -57,10 +69,10 @@ void Analyzer::process(CVContours &contours, std::vector<ContourParameters> &par
 
 void Analyzer::writeResults(QTextStream &stream, std::vector<ContourParameters> &params)
 {
-	stream << " \tArea\tPerim.\tAngle\tDist.\n";
+	stream << " \tArea\tPerim.\tDist.\tRatio\n";
 	for (size_t i = 0; i < params.size(); i++) {
 		ContourParameters &p = params[i];
-		stream << i+1 << "\t" << p.area << "\t" << p.perim << "\t" << p.angle << "\t" << p.dist << "\n";
+		stream << i+1 << "\t" << p.area << "\t" << p.perim << "\t" << p.dist << "\t" << p.ratio << "\n";
 	}
 }
 

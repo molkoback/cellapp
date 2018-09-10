@@ -17,6 +17,8 @@ typedef struct _ContourParameters ContourParameters;
 
 class Analyzer {
 private:
+	void contourXY(const CVContour &cnt, int &x, int &y);
+	double contourRatio(const CVContour &cnt);
 	void process(CVContours &contours, std::vector<ContourParameters> &params);
 	void writeResults(QTextStream &stream, std::vector<ContourParameters> &params);
 
