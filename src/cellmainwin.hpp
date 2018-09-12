@@ -41,6 +41,7 @@ private:
 	QAction *processAction;
 	
 	QString currentPath;
+	QStringList files;
 
 private:
 	/* Close event that will be called when the windows is being closed.*/

@@ -13,13 +13,16 @@
 #include <QApplication>
 #include <QDir>
 #include <QFileDialog>
+#include <QFileInfoList>
 #include <QKeySequence>
+#include <QList>
 #include <QMessageBox>
 #include <QMenu>
 #include <QMenuBar>
 #include <QPixmap>
 #include <QStatusBar>
 #include <QString>
+#include <QStringList>
 
 void CellMainWin::loadSegmOptions()
 {
@@ -62,7 +65,7 @@ void CellMainWin::createMenuBar()
 	QAction *openDirAction = fileMenu->addAction("Open Folder");
 	openDirAction->setShortcut(QKeySequence("Ctrl+Shift+O"));
 	connect(openDirAction, SIGNAL(triggered()), this, SLOT(on_openDirAction()));
-	openDirAction->setEnabled(false); // Disabled
+	openDirAction->setEnabled(false);
 	
 	this->saveImageAction = fileMenu->addAction("Save Image");
 	this->saveImageAction->setShortcut(QKeySequence("Ctrl+S"));
@@ -159,19 +162,28 @@ void CellMainWin::on_openFileAction()
 		"Open Image", this->currentPath,
 		"Image Files (*.png *.jpg *.bmp *.gif)"
 	);
-	if (!file.isEmpty()) {
-		this->currentPath = dir.absoluteFilePath(file);
-		loadImage(file);
-	}
+	if (file.isEmpty())
+		return;
+	this->currentPath = dir.absoluteFilePath(file);
+	
+	this->loadImage(file);
 }
 
 void CellMainWin::on_openDirAction()
 {
 	QString path = QFileDialog::getExistingDirectory();
-	if (!path.isEmpty()) {
-		this->currentPath = path;
-		// TODO
-	}
+	if (path.isEmpty())
+		return;
+	this->currentPath = path;
+	
+	QDir dir(path);
+	QList<QFileInfo> fileinfos = dir.entryInfoList(
+		QStringList() << "*.png" <<  "*.jpg" <<  "*.bmp" << "*.gif"
+	);
+	
+	this->files.clear();
+	for (const auto &fileinfo : fileinfos)
+		this->files << fileinfo.absoluteFilePath();
 }
 
 void CellMainWin::on_saveImageAction()
