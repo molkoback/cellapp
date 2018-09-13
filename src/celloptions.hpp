@@ -41,6 +41,8 @@ private:
 	QComboBox filtMethodComboBox;
 	QLabel thMethodLabel;
 	QComboBox thMethodComboBox;
+	QLabel watershedLabel;
+	QCheckBox watershedCheckBox;
 	QLabel hullLabel;
 	QCheckBox hullCheckBox;
 	
@@ -76,6 +78,7 @@ public:
 	QString getCurrentPath();
 	int getFiltMethod();
 	int getThMethod();
+	bool getUseWatershed();
 	bool getUseHull();
 	double getCellMinArea();
 };

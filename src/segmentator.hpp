@@ -37,6 +37,7 @@ private:
 	int filt_method;
 	int th_method;
 	
+	bool use_watershed;
 	bool use_hull;
 	
 	int prune_checks;
@@ -44,6 +45,8 @@ private:
 	
 	void binarize(cv::UMat &src, cv::UMat &dst);
 	void filter(cv::UMat &src, cv::UMat &dst);
+	void watershed(cv::UMat &im, cv::UMat &im_b, cv::UMat &dst);
+	void findContours(cv::UMat &im_b, CVContours &contours);
 	void segment(cv::UMat &im, CVContours &contours);
 	bool contourValid(const CVContour &cnt);
 	void pruneContours(CVContours &contours);
@@ -55,6 +58,7 @@ public:
 	
 	void setFiltMethod(int filt_method) { this->filt_method = filt_method; }
 	void setThMethod(int th_method) { this->th_method = th_method; }
+	void setUseWatershed(bool use_watershed) { this->use_watershed = use_watershed; }
 	void setUseHull(bool use_hull) { this->use_hull = use_hull; }
 	void setPruneChecks(int prune_checks) { this->prune_checks = prune_checks; }
 	void setCellMinArea(double cell_minarea) { this->cell_minarea = cell_minarea; }

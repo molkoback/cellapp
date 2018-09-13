@@ -17,6 +17,7 @@ CellOptions::CellOptions() :
 	segmBox("Segmentation"),
 	filtMethodLabel("Filtering method"),
 	thMethodLabel("Threshold method"),
+	watershedLabel("Use watershed"),
 	hullLabel("Use convex hull"),
 	cellBox("Cells"),
 	minareaLabel("Minimum cell area (px)"),
@@ -38,6 +39,7 @@ CellOptions::CellOptions() :
 	this->thMethodComboBox.addItem("Color based");
 	this->thMethodComboBox.addItem("Otsu's method");
 	
+	this->segmLayout.addRow(&this->watershedLabel, &this->watershedCheckBox);
 	this->segmLayout.addRow(&this->hullLabel, &this->hullCheckBox);
 	
 	// Cells
@@ -61,6 +63,7 @@ void CellOptions::loadSettings()
 	this->geometry = this->settings.value("mainwin/geometry").toByteArray();
 	this->currentPath = this->settings.value("files/currentPath", ".").toString();
 	this->filtMethodComboBox.setCurrentIndex(this->settings.value("segm/filt_method", FILTER_BILATERAL).toInt());
+	this->watershedCheckBox.setChecked(this->settings.value("segm/use_watershed", false).toBool());
 	this->hullCheckBox.setChecked(this->settings.value("segm/use_hull", false).toBool());
 	this->thMethodComboBox.setCurrentIndex(this->settings.value("segm/th_method", THRESHOLD_HSV).toInt());
 	this->minareaLineEdit.setText(this->settings.value("cell/minarea", 25.0).toString());
@@ -72,6 +75,7 @@ void CellOptions::saveSettings()
 	this->settings.setValue("files/currentPath", this->currentPath);
 	this->settings.setValue("segm/filt_method", this->filtMethodComboBox.currentIndex());
 	this->settings.setValue("segm/th_method", this->thMethodComboBox.currentIndex());
+	this->settings.setValue("segm/use_watershed", this->watershedCheckBox.isChecked());
 	this->settings.setValue("segm/use_hull", this->hullCheckBox.isChecked());
 	this->settings.setValue("cell/minarea", this->minareaLineEdit.text().toDouble());
 	this->settings.sync();
@@ -134,6 +138,11 @@ int CellOptions::getFiltMethod()
 int CellOptions::getThMethod()
 {
 	return this->thMethodComboBox.currentIndex();
+}
+
+bool CellOptions::getUseWatershed()
+{
+	return this->watershedCheckBox.isChecked();
 }
 
 bool CellOptions::getUseHull()

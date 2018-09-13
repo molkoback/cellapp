@@ -30,6 +30,7 @@ void CellMainWin::loadSegmOptions()
 	
 	this->segmentator.setFiltMethod(opt->getFiltMethod());
 	this->segmentator.setThMethod(opt->getThMethod());
+	this->segmentator.setUseWatershed(opt->getUseWatershed());
 	this->segmentator.setUseHull(opt->getUseHull());
 	this->segmentator.setCellMinArea(opt->getCellMinArea());
 }

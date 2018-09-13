@@ -20,12 +20,18 @@
 /* Gaussian kernel size. */
 #define GAUSSIAN_SIZE cv::Size(9, 9)
 
+/* Watershed options. */
+#define WS_KERNEL_SIZE cv::Size(3, 3)
+#define WS_NOPEN 2
+#define WS_NDILATE 5
+
 /* Contour draw colors. */
 #define CONTOUR_DRAW_COLOR cv::Vec3b(0, 255, 0)
 
 Segmentator::Segmentator() :
 	filt_method(THRESHOLD_HSV),
 	th_method(FILTER_BILATERAL),
+	use_watershed(0),
 	use_hull(0),
 	prune_checks(CHECK_ALL),
 	cell_minarea(25.0)
@@ -68,13 +74,44 @@ void Segmentator::filter(cv::UMat &src, cv::UMat &dst)
 	}
 }
 
-void Segmentator::segment(cv::UMat &im, CVContours &contours)
+void Segmentator::watershed(cv::UMat &im, cv::UMat &im_b, cv::UMat &dst)
 {
-	cv::UMat im_filt, im_b;
+	cv::UMat fg, bg, unknown, markers, mask;
 	
-	this->filter(im, im_filt);
-	this->binarize(im_filt, im_b);
+	// Find sure foreground and background
+	cv::Mat kernel = getStructuringElement(cv::MORPH_ELLIPSE, WS_KERNEL_SIZE);
+	cv::morphologyEx(im_b, fg, cv::MORPH_OPEN, kernel, cv::Point(-1,-1), WS_NOPEN);
+	cv::morphologyEx(fg, bg, cv::MORPH_DILATE, kernel, cv::Point(-1,-1), WS_NDILATE);
+	cv::subtract(bg, fg, unknown);
 	
+	// Find markers
+	cv::connectedComponents(fg, markers);
+	cv::add(markers, 1, markers); // Background will be 1
+	
+	// Mark unknown region
+	cv::compare(unknown, 255, mask, cv::CMP_EQ);
+	markers.setTo(0, mask);
+	
+	// Watershed
+	cv::watershed(im, markers);
+	
+	// Binarize marker image correctly
+	// Set background to 0
+	cv::compare(markers, 1, mask, cv::CMP_EQ);
+	markers.setTo(0, mask);
+	// Set everything else to 255
+	cv::compare(markers, 0, mask, cv::CMP_NE);
+	markers.setTo(255, mask);
+	markers.convertTo(markers, CV_8U);
+	
+	// Remove 1 pixel border left by watershed
+	cv::UMat area(markers, cv::Rect(1, 1, markers.cols-2, markers.rows-2));
+	cv::UMat cropped = area.clone();
+	cv::copyMakeBorder(cropped, dst, 1, 1, 1, 1, cv::BORDER_REPLICATE);
+}
+
+void Segmentator::findContours(cv::UMat &im_b, CVContours &contours)
+{
 	std::vector<cv::Vec4i> hierarchy;
 	if (this->use_hull) {
 		// Find contours and then calculate their hulls
@@ -90,6 +127,19 @@ void Segmentator::segment(cv::UMat &im, CVContours &contours)
 		// Find contours
 		cv::findContours(im_b, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
 	}
+}
+
+void Segmentator::segment(cv::UMat &im, CVContours &contours)
+{
+	cv::UMat im_filt, im_b, im_b_ws;
+	
+	this->filter(im, im_filt);
+	this->binarize(im_filt, im_b);
+	if (this->use_watershed) {
+		this->watershed(im, im_b, im_b_ws);
+		im_b = im_b_ws;
+	}
+	this->findContours(im_b, contours);
 }
 
 bool Segmentator::contourValid(const CVContour &cnt)
