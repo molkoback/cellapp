@@ -15,6 +15,7 @@ CellApp is a graphical cancer cell segmentation and analysis tool.
  * Threshold method
    * Color based: threshold using brown color.
    * Otsu's method: threshold using all colors.
+ * Use watershed: use watershed algorithm to segment regions.
  * Use convex hull: ignore curves that are bulged inside.
  * Minimum cell area: cells smaller than this will be ignored.
 
