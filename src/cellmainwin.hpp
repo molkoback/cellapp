@@ -39,6 +39,7 @@ private:
 	QAction *saveImageAction;
 	QAction *saveResultsAction;
 	QAction *processAction;
+	QAction *processAllAction;
 	
 	QString currentPath;
 	QStringList files;
@@ -54,7 +55,9 @@ private:
 	void saveWinOptions();
 	
 	/* Loads a new image */
-	void loadImage(const QString &file);
+	void loadImage();
+	
+	void statusMessage(const QString &msg);
 
 public slots:
 	void on_openFileAction();
@@ -63,6 +66,7 @@ public slots:
 	void on_saveResultsAction();
 	void on_quitAction();
 	void on_processAction();
+	void on_processAllAction();
 	void on_optionsAction();
 	void on_aboutAction();
 	void on_optionsChanged();

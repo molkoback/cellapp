@@ -92,6 +92,11 @@ void CellMainWin::createMenuBar()
 	connect(this->processAction, SIGNAL(triggered()), this, SLOT(on_processAction()));
 	this->processAction->setEnabled(false);
 	
+	this->processAllAction = toolsMenu->addAction("Process All");
+	this->processAllAction->setShortcut(QKeySequence("Ctrl+Shift+P"));
+	connect(this->processAllAction, SIGNAL(triggered()), this, SLOT(on_processAllAction()));
+	this->processAllAction->setEnabled(false);
+	
 	toolsMenu->addSeparator();
 	
 	QAction *optionsAction = toolsMenu->addAction("Options");
@@ -132,8 +137,11 @@ CellMainWin::CellMainWin() :
 }
 
 /* Opens and sets our image. */
-void CellMainWin::loadImage(const QString &file)
+void CellMainWin::loadImage()
 {
+	QString file = this->files[0];
+	this->files.pop_front();
+	
 	this->image_orig = QImage(file);
 	if (this->image_orig.isNull()) {
 		QMessageBox::information(
@@ -149,10 +157,16 @@ void CellMainWin::loadImage(const QString &file)
 	
 	// Enable processing
 	this->processAction->setEnabled(true);
+	//this->processAllAction->setEnabled(true);
 	
 	// Disable saving
 	this->saveImageAction->setEnabled(false);
 	this->saveResultsAction->setEnabled(false);
+}
+
+void CellMainWin::statusMessage(const QString &msg)
+{
+	this->statusBar()->showMessage(msg, 0);
 }
 
 void CellMainWin::on_openFileAction()
@@ -167,7 +181,10 @@ void CellMainWin::on_openFileAction()
 		return;
 	this->currentPath = dir.absoluteFilePath(file);
 	
-	this->loadImage(file);
+	this->files.clear();
+	this->files << file;
+	this->statusMessage(QString("Opened %1").arg(file));
+	this->loadImage();
 }
 
 void CellMainWin::on_openDirAction()
@@ -185,6 +202,8 @@ void CellMainWin::on_openDirAction()
 	this->files.clear();
 	for (const auto &fileinfo : fileinfos)
 		this->files << fileinfo.absoluteFilePath();
+	this->statusMessage(QString("Opened %1 files").arg(this->files.size()));
+	this->loadImage();
 }
 
 void CellMainWin::on_saveImageAction()
@@ -224,6 +243,10 @@ void CellMainWin::on_processAction()
 	// Enable file saving
 	this->saveImageAction->setEnabled(true);
 	this->saveResultsAction->setEnabled(true);
+}
+
+void CellMainWin::on_processAllAction()
+{
 }
 
 void CellMainWin::on_optionsAction()
