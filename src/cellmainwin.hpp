@@ -69,6 +69,7 @@ public slots:
 	void on_processAllAction();
 	void on_optionsAction();
 	void on_aboutAction();
+	void on_aboutQtAction();
 	void on_optionsChanged();
 	void on_imageLabelClicked(int x, int y);
 

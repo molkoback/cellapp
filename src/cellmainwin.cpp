@@ -105,8 +105,11 @@ void CellMainWin::createMenuBar()
 	// Help menu
 	QMenu *helpMenu = menuBar->addMenu("Help");
 	
-	QAction *aboutAction = helpMenu->addAction("About");
+	QAction *aboutAction = helpMenu->addAction(QString("About %1").arg(CELLAPP_NAME));
 	connect(aboutAction, SIGNAL(triggered()), this, SLOT(on_aboutAction()));
+	
+	QAction *aboutQtAction = helpMenu->addAction("About Qt");
+	connect(aboutQtAction, SIGNAL(triggered()), this, SLOT(on_aboutQtAction()));
 }
 
 void CellMainWin::createView()
@@ -264,6 +267,11 @@ void CellMainWin::on_aboutAction()
 		"This software is licensed under WTFPL. See COPYING file for details.<br>"
 	).arg(CELLAPP_NAME, CELLAPP_VERSION);
 	QMessageBox::about(this, QString("About %1").arg(CELLAPP_NAME), msg);
+}
+
+void CellMainWin::on_aboutQtAction()
+{
+	QMessageBox::aboutQt(this);
 }
 
 void CellMainWin::on_optionsChanged()
