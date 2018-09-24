@@ -13,6 +13,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QFileInfoList>
 #include <QKeySequence>
 #include <QList>
@@ -66,7 +67,6 @@ void CellMainWin::createMenuBar()
 	QAction *openDirAction = fileMenu->addAction("Open Folder");
 	openDirAction->setShortcut(QKeySequence("Ctrl+Shift+O"));
 	connect(openDirAction, SIGNAL(triggered()), this, SLOT(on_openDirAction()));
-	openDirAction->setEnabled(false);
 	
 	this->saveImageAction = fileMenu->addAction("Save Image");
 	this->saveImageAction->setShortcut(QKeySequence("Ctrl+S"));
@@ -139,19 +139,16 @@ CellMainWin::CellMainWin() :
 	connect(&imageLabel, SIGNAL(clicked(int, int)), this, SLOT(on_imageLabelClicked(int, int)));
 }
 
-/* Opens and sets our image. */
-void CellMainWin::loadImage()
+/* Loads a the given image. */
+bool CellMainWin::loadImage(const QString &file)
 {
-	QString file = this->files[0];
-	this->files.pop_front();
-	
 	this->image_orig = QImage(file);
 	if (this->image_orig.isNull()) {
 		QMessageBox::information(
 			this, QGuiApplication::applicationDisplayName(),
 			QString("Couldn't open '%1'").arg(file)
 		);
-		return;
+		return false;
 	}
 	
 	// Set our image
@@ -160,11 +157,12 @@ void CellMainWin::loadImage()
 	
 	// Enable processing
 	this->processAction->setEnabled(true);
-	//this->processAllAction->setEnabled(true);
+	this->processAllAction->setEnabled(true);
 	
 	// Disable saving
 	this->saveImageAction->setEnabled(false);
 	this->saveResultsAction->setEnabled(false);
+	return true;
 }
 
 void CellMainWin::statusMessage(const QString &msg)
@@ -174,7 +172,6 @@ void CellMainWin::statusMessage(const QString &msg)
 
 void CellMainWin::on_openFileAction()
 {
-	QDir dir;
 	QString file = QFileDialog::getOpenFileName(
 		this,
 		"Open Image", this->currentPath,
@@ -182,17 +179,20 @@ void CellMainWin::on_openFileAction()
 	);
 	if (file.isEmpty())
 		return;
-	this->currentPath = dir.absoluteFilePath(file);
+	this->currentPath = QFileInfo(file).absolutePath();
 	
 	this->files.clear();
 	this->files << file;
 	this->statusMessage(QString("Opened %1").arg(file));
-	this->loadImage();
+	this->loadImage(file);
 }
 
 void CellMainWin::on_openDirAction()
 {
-	QString path = QFileDialog::getExistingDirectory();
+	QString path = QFileDialog::getExistingDirectory(
+		this,
+		"Open Folder", this->currentPath
+	);
 	if (path.isEmpty())
 		return;
 	this->currentPath = path;
@@ -206,7 +206,7 @@ void CellMainWin::on_openDirAction()
 	for (const auto &fileinfo : fileinfos)
 		this->files << fileinfo.absoluteFilePath();
 	this->statusMessage(QString("Opened %1 files").arg(this->files.size()));
-	this->loadImage();
+	this->loadImage(this->files[0]);
 }
 
 void CellMainWin::on_saveImageAction()
@@ -227,9 +227,8 @@ void CellMainWin::on_saveResultsAction()
 		"Save File", this->currentPath,
 		"Text Files (*.txt)"
 	);
-	if (!file.isEmpty()) {
+	if (!file.isEmpty())
 		this->analyzer.run(this->contours, file);
-	}
 }
 
 void CellMainWin::on_quitAction()
@@ -239,6 +238,7 @@ void CellMainWin::on_quitAction()
 
 void CellMainWin::on_processAction()
 {
+	// Segment
 	this->segmentator.findContours(this->image_orig, this->contours);
 	this->segmentator.drawContours(this->image_orig, this->image_segm, this->contours);
 	this->imageLabel.setImage(this->image_segm);
@@ -250,6 +250,20 @@ void CellMainWin::on_processAction()
 
 void CellMainWin::on_processAllAction()
 {
+	for (const QString &file : this->files) {
+		// Load image
+		this->loadImage(file);
+		
+		// Segment
+		this->segmentator.findContours(this->image_orig, this->contours);
+		this->segmentator.drawContours(this->image_orig, this->image_segm, this->contours);
+		this->imageLabel.setImage(this->image_segm);
+		
+		// Save results
+		QFileInfo info(file);
+		QString txtfile = info.absolutePath() + "/" + info.baseName() + QString(".txt");
+		this->analyzer.run(this->contours, txtfile);
+	}
 }
 
 void CellMainWin::on_optionsAction()

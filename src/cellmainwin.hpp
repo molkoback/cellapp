@@ -54,8 +54,8 @@ private:
 	void loadSegmOptions();
 	void saveWinOptions();
 	
-	/* Loads a new image */
-	void loadImage();
+	/* Loads a the given image. */
+	bool loadImage(const QString &file);
 	
 	void statusMessage(const QString &msg);
 
