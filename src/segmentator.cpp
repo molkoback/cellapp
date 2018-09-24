@@ -21,9 +21,9 @@
 #define GAUSSIAN_SIZE cv::Size(9, 9)
 
 /* Watershed options. */
-#define WS_KERNEL_SIZE cv::Size(3, 3)
+#define WS_KERNEL_SIZE cv::Size(5, 5)
 #define WS_NOPEN 2
-#define WS_NDILATE 5
+#define WS_NDILATE 6
 
 /* Contour draw colors. */
 #define CONTOUR_DRAW_COLOR cv::Vec3b(0, 255, 0)
