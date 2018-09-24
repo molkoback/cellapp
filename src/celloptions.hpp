@@ -51,6 +51,13 @@ private:
 	QLabel minareaLabel;
 	QLineEdit minareaLineEdit;
 	
+	QGroupBox outputBox;
+	QFormLayout outputLayout;
+	QLabel saveResultsLabel;
+	QCheckBox saveResultsCheckBox;
+	QLabel saveImageLabel;
+	QCheckBox saveImageCheckBox;
+	
 	QHBoxLayout buttonLayout;
 	QPushButton okButton;
 	QPushButton cancelButton;
@@ -81,6 +88,8 @@ public:
 	bool getUseWatershed();
 	bool getUseHull();
 	double getCellMinArea();
+	bool getSaveResults();
+	bool getSaveImage();
 };
 
 #endif

@@ -270,10 +270,20 @@ void CellMainWin::on_processAllAction()
 		this->imageLabel.setImage(this->image_segm);
 		QCoreApplication::processEvents();
 		
-		// Save results
 		QFileInfo info(this->files[i]);
-		QString txtfile = info.absolutePath() + "/" + info.baseName() + QString(".txt");
-		this->analyzer.run(this->contours, txtfile);
+		CellOptions *opt = this->optionsWin.get();
+		
+		// Save results
+		if (opt->getSaveResults()) {
+			QString txtfile = info.absolutePath() + "/" + info.baseName() + QString(".txt");
+			this->analyzer.run(this->contours, txtfile);
+		}
+		
+		// Save image
+		if (opt->getSaveImage()) {
+			QString imfile = info.absolutePath() + "/" + info.baseName() + QString("_segm.png");
+			this->image_segm.save(imfile);
+		}
 	}
 	this->statusMessage(QString("Processed %1 files").arg(n));
 }

@@ -21,6 +21,9 @@ CellOptions::CellOptions() :
 	hullLabel("Use convex hull"),
 	cellBox("Cells"),
 	minareaLabel("Minimum cell area (px)"),
+	outputBox("Output files"),
+	saveResultsLabel("Save analysis results"),
+	saveImageLabel("Save segmented image"),
 	okButton("OK"),
 	cancelButton("Cancel")
 {
@@ -47,6 +50,12 @@ CellOptions::CellOptions() :
 	this->cellBox.setLayout(&this->cellLayout);
 	this->cellLayout.addRow(&this->minareaLabel, &this->minareaLineEdit);
 	
+	// Output files
+	this->vbox.addWidget(&this->outputBox);
+	this->outputBox.setLayout(&this->outputLayout);
+	this->outputLayout.addRow(&this->saveResultsLabel, &this->saveResultsCheckBox);
+	this->outputLayout.addRow(&this->saveImageLabel, &this->saveImageCheckBox);
+	
 	this->vbox.addStretch();
 	
 	this->vbox.addLayout(&this->buttonLayout);
@@ -67,6 +76,8 @@ void CellOptions::loadSettings()
 	this->hullCheckBox.setChecked(this->settings.value("segm/use_hull", false).toBool());
 	this->thMethodComboBox.setCurrentIndex(this->settings.value("segm/th_method", THRESHOLD_HSV).toInt());
 	this->minareaLineEdit.setText(this->settings.value("cell/minarea", 25.0).toString());
+	this->saveResultsCheckBox.setChecked(this->settings.value("output/save_results", true).toBool());
+	this->saveImageCheckBox.setChecked(this->settings.value("output/save_image", false).toBool());
 }
 
 void CellOptions::saveSettings()
@@ -78,6 +89,8 @@ void CellOptions::saveSettings()
 	this->settings.setValue("segm/use_watershed", this->watershedCheckBox.isChecked());
 	this->settings.setValue("segm/use_hull", this->hullCheckBox.isChecked());
 	this->settings.setValue("cell/minarea", this->minareaLineEdit.text().toDouble());
+	this->settings.setValue("output/save_results", this->saveResultsCheckBox.isChecked());
+	this->settings.setValue("output/save_image", this->saveImageCheckBox.isChecked());
 	this->settings.sync();
 }
 
@@ -153,4 +166,14 @@ bool CellOptions::getUseHull()
 double CellOptions::getCellMinArea()
 {
 	return this->minareaLineEdit.text().toDouble();
+}
+
+bool CellOptions::getSaveResults()
+{
+	return this->saveResultsCheckBox.isChecked();
+}
+
+bool CellOptions::getSaveImage()
+{
+	return this->saveImageCheckBox.isChecked();
 }
