@@ -7,7 +7,7 @@
 
 #include "segmentator.hpp"
 
-#include "util/convert.hpp"
+#include "converter.hpp"
 
 #include <algorithm>
 #include <exception>
@@ -129,19 +129,6 @@ void Segmentator::findContours(cv::UMat &im_b, CVContours &contours)
 	}
 }
 
-void Segmentator::segment(cv::UMat &im, CVContours &contours)
-{
-	cv::UMat im_filt, im_b, im_b_ws;
-	
-	this->filter(im, im_filt);
-	this->binarize(im_filt, im_b);
-	if (this->use_watershed) {
-		this->watershed(im, im_b, im_b_ws);
-		im_b = im_b_ws;
-	}
-	this->findContours(im_b, contours);
-}
-
 bool Segmentator::contourValid(const CVContour &cnt)
 {
 	bool ret = 1;
@@ -160,20 +147,27 @@ void Segmentator::pruneContours(CVContours &contours)
 	);
 }
 
-void Segmentator::findContours(const QImage &src, CVContours &contours)
+void Segmentator::segment(const QImage &src, CVContours &contours)
 {
-	cv::UMat mat;
-	QImage2UMat(src, mat);
-	this->segment(mat, contours);
+	cv::UMat im, im_filt, im_b, im_b_ws;
+	
+	Converter::QImage2UMat(src, im);
+	this->filter(im, im_filt);
+	this->binarize(im_filt, im_b);
+	if (this->use_watershed) {
+		this->watershed(im, im_b, im_b_ws);
+		im_b = im_b_ws;
+	}
+	this->findContours(im_b, contours);
 	this->pruneContours(contours);
 }
 
 void Segmentator::drawContours(const QImage &src, QImage &dst, CVContours &contours)
 {
 	cv::UMat mat;
-	QImage2UMat(src, mat);
+	Converter::QImage2UMat(src, mat);
 	cv::drawContours(mat, contours, -1, CONTOUR_DRAW_COLOR, 2);
-	UMat2QImage(mat, dst);
+	Converter::UMat2QImage(mat, dst);
 }
 
 void Segmentator::removeContour(CVContours &contours, int x, int y)

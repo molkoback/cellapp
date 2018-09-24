@@ -27,8 +27,8 @@ set(CELL_SRC
 	src/celllabel.cpp
 	src/cellmainwin.cpp
 	src/celloptions.cpp
+	src/converter.cpp
 	src/segmentator.cpp
-	src/util/convert.cpp
 )
 set(CELL_NAME "cellapp")
 

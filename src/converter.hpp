@@ -5,14 +5,19 @@
  * as published by Sam Hocevar. See the COPYING file for more details.
  */
 
-#ifndef CONVERT_H
-#define CONVERT_H
+#ifndef CONVERTER_H
+#define CONVERTER_H
 
 #include <QImage>
 #include <opencv2/opencv.hpp>
 
-void UMat2QImage(const cv::UMat &src, QImage &dst);
+class Converter {
+private:
+	Converter() {}
 
-void QImage2UMat(const QImage &src, cv::UMat &dst);
+public:
+	static void UMat2QImage(const cv::UMat &src, QImage &dst);
+	static void QImage2UMat(const QImage &src, cv::UMat &dst);
+};
 
 #endif

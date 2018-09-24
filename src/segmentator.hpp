@@ -47,10 +47,8 @@ private:
 	void filter(cv::UMat &src, cv::UMat &dst);
 	void watershed(cv::UMat &im, cv::UMat &im_b, cv::UMat &dst);
 	void findContours(cv::UMat &im_b, CVContours &contours);
-	void segment(cv::UMat &im, CVContours &contours);
 	bool contourValid(const CVContour &cnt);
 	void pruneContours(CVContours &contours);
-	void findParameters(cv::UMat &im, CVContours &contours, struct SegmentResults &res);
 
 public:
 	Segmentator();
@@ -63,7 +61,7 @@ public:
 	void setPruneChecks(int prune_checks) { this->prune_checks = prune_checks; }
 	void setCellMinArea(double cell_minarea) { this->cell_minarea = cell_minarea; }
 	
-	void findContours(const QImage &src, CVContours &contours);
+	void segment(const QImage &src, CVContours &contours);
 	void drawContours(const QImage &src, QImage &dst, CVContours &contours);
 	void removeContour(CVContours &contours, int x, int y);
 };

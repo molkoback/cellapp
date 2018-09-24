@@ -244,7 +244,7 @@ void CellMainWin::on_quitAction()
 void CellMainWin::on_processAction()
 {
 	// Segment
-	this->segmentator.findContours(this->image_orig, this->contours);
+	this->segmentator.segment(this->image_orig, this->contours);
 	this->segmentator.drawContours(this->image_orig, this->image_segm, this->contours);
 	this->imageLabel.setImage(this->image_segm);
 	
@@ -265,7 +265,7 @@ void CellMainWin::on_processAllAction()
 		QCoreApplication::processEvents();
 		
 		// Segment
-		this->segmentator.findContours(this->image_orig, this->contours);
+		this->segmentator.segment(this->image_orig, this->contours);
 		this->segmentator.drawContours(this->image_orig, this->image_segm, this->contours);
 		this->imageLabel.setImage(this->image_segm);
 		QCoreApplication::processEvents();

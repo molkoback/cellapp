@@ -5,9 +5,9 @@
  * as published by Sam Hocevar. See the COPYING file for more details.
  */
 
-#include "convert.hpp"
+#include "converter.hpp"
 
-void UMat2QImage(const cv::UMat &src, QImage &dst)
+void Converter::UMat2QImage(const cv::UMat &src, QImage &dst)
 {
 	cv::Mat mat;
 	cv::cvtColor(src, mat, CV_BGR2RGB);
@@ -15,7 +15,7 @@ void UMat2QImage(const cv::UMat &src, QImage &dst)
 	dst = tmp.copy(); // Create deep copy
 }
 
-void QImage2UMat(const QImage &src, cv::UMat &dst)
+void Converter::QImage2UMat(const QImage &src, cv::UMat &dst)
 {
 	QImage im = src.convertToFormat(QImage::Format_RGB888);
 	cv::Mat tmp(im.height(), im.width(), CV_8UC3, (void*)im.bits(), im.bytesPerLine());
