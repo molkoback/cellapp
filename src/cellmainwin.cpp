@@ -11,6 +11,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QCoreApplication>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -216,8 +217,10 @@ void CellMainWin::on_saveImageAction()
 		"Save Image", this->currentPath,
 		"Image Files (*.png *.jpg *.bmp *.gif)"
 	);
-	if (!file.isEmpty())
+	if (!file.isEmpty()) {
 		this->image_segm.save(file);
+		this->statusMessage(QString("Saved %1").arg(file));
+	}
 }
 
 void CellMainWin::on_saveResultsAction()
@@ -227,8 +230,10 @@ void CellMainWin::on_saveResultsAction()
 		"Save File", this->currentPath,
 		"Text Files (*.txt)"
 	);
-	if (!file.isEmpty())
+	if (!file.isEmpty()) {
 		this->analyzer.run(this->contours, file);
+		this->statusMessage(QString("Saved %1").arg(file));
+	}
 }
 
 void CellMainWin::on_quitAction()
@@ -246,24 +251,31 @@ void CellMainWin::on_processAction()
 	// Enable file saving
 	this->saveImageAction->setEnabled(true);
 	this->saveResultsAction->setEnabled(true);
+	this->statusMessage(QString("Processed %1").arg(this->files[0]));
 }
 
 void CellMainWin::on_processAllAction()
 {
-	for (const QString &file : this->files) {
+	size_t n = this->files.size();
+	for (size_t i = 0; i < n; i++) {
+		this->statusMessage(QString("Processing file %1/%2").arg(i+1).arg(n));
+		
 		// Load image
-		this->loadImage(file);
+		this->loadImage(this->files[i]);
+		QCoreApplication::processEvents();
 		
 		// Segment
 		this->segmentator.findContours(this->image_orig, this->contours);
 		this->segmentator.drawContours(this->image_orig, this->image_segm, this->contours);
 		this->imageLabel.setImage(this->image_segm);
+		QCoreApplication::processEvents();
 		
 		// Save results
-		QFileInfo info(file);
+		QFileInfo info(this->files[i]);
 		QString txtfile = info.absolutePath() + "/" + info.baseName() + QString(".txt");
 		this->analyzer.run(this->contours, txtfile);
 	}
+	this->statusMessage(QString("Processed %1 files").arg(n));
 }
 
 void CellMainWin::on_optionsAction()
