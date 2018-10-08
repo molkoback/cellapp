@@ -20,6 +20,7 @@ CellApp is a graphical cancer cell segmentation and analysis tool.
  * Minimum cell area: cells smaller than this will be ignored.
  * Save analysis results: save analysis results as text files when using Process All.
  * Save segmented image: save segmented images when using Process All.
+ * Output Folder: analysis results and segmented images will be saved here when using Process All.
 
 ### Output parameters
  * Area: cell area.

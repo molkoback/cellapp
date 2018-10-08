@@ -42,7 +42,7 @@ void CellMainWin::saveWinOptions()
 	CellOptions *opt = this->optionsWin.get();
 	
 	opt->setGeometry(this->saveGeometry());
-	opt->setCurrentPath(this->currentPath);
+	opt->setInputPath(this->inputPath);
 	
 	opt->saveSettings();
 }
@@ -125,7 +125,7 @@ CellMainWin::CellMainWin() :
 	// Load window options
 	CellOptions *opt = this->optionsWin.get();
 	this->restoreGeometry(opt->getGeometry());
-	this->currentPath = opt->getCurrentPath();
+	this->inputPath = opt->getInputPath();
 	
 	// Load segmentator options
 	this->loadSegmOptions();
@@ -175,12 +175,12 @@ void CellMainWin::on_openFileAction()
 {
 	QString file = QFileDialog::getOpenFileName(
 		this,
-		"Open Image", this->currentPath,
+		"Open Image", this->inputPath,
 		"Image Files (*.png *.jpg *.bmp *.gif)"
 	);
 	if (file.isEmpty())
 		return;
-	this->currentPath = QFileInfo(file).absolutePath();
+	this->inputPath = QFileInfo(file).absolutePath();
 	
 	this->files.clear();
 	this->files << file;
@@ -192,11 +192,11 @@ void CellMainWin::on_openDirAction()
 {
 	QString path = QFileDialog::getExistingDirectory(
 		this,
-		"Open Folder", this->currentPath
+		"Open Folder", this->inputPath
 	);
 	if (path.isEmpty())
 		return;
-	this->currentPath = path;
+	this->inputPath = path;
 	
 	QDir dir(path);
 	QList<QFileInfo> fileinfos = dir.entryInfoList(
@@ -214,7 +214,7 @@ void CellMainWin::on_saveImageAction()
 {
 	QString file = QFileDialog::getSaveFileName(
 		this,
-		"Save Image", this->currentPath,
+		"Save Image", this->inputPath,
 		"Image Files (*.png *.jpg *.bmp *.gif)"
 	);
 	if (!file.isEmpty()) {
@@ -227,7 +227,7 @@ void CellMainWin::on_saveResultsAction()
 {
 	QString file = QFileDialog::getSaveFileName(
 		this,
-		"Save File", this->currentPath,
+		"Save File", this->inputPath,
 		"Text Files (*.txt)"
 	);
 	if (!file.isEmpty()) {
@@ -256,6 +256,7 @@ void CellMainWin::on_processAction()
 
 void CellMainWin::on_processAllAction()
 {
+	QString outputPath = this->optionsWin.get()->getOutputPath();
 	size_t n = this->files.size();
 	for (size_t i = 0; i < n; i++) {
 		this->statusMessage(QString("Processing file %1/%2").arg(i+1).arg(n));
@@ -275,13 +276,13 @@ void CellMainWin::on_processAllAction()
 		
 		// Save results
 		if (opt->getSaveResults()) {
-			QString txtfile = info.absolutePath() + "/" + info.baseName() + QString(".txt");
+			QString txtfile = outputPath + "/" + info.baseName() + QString(".txt");
 			this->analyzer.run(this->contours, txtfile);
 		}
 		
 		// Save image
 		if (opt->getSaveImage()) {
-			QString imfile = info.absolutePath() + "/" + info.baseName() + QString("_segm.png");
+			QString imfile = outputPath + "/" + info.baseName() + QString("_segm.png");
 			this->image_segm.save(imfile);
 		}
 	}

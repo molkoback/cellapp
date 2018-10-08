@@ -41,7 +41,7 @@ private:
 	QAction *processAction;
 	QAction *processAllAction;
 	
-	QString currentPath;
+	QString inputPath;
 	QStringList files;
 
 private:

@@ -11,6 +11,7 @@
 #include "segmentator.hpp"
 
 #include <QMessageBox>
+#include <QFileDialog>
 
 CellOptions::CellOptions() :
 	settings(CELLAPP_NAME, CELLAPP_ORG),
@@ -24,6 +25,8 @@ CellOptions::CellOptions() :
 	outputBox("Output files"),
 	saveResultsLabel("Save analysis results"),
 	saveImageLabel("Save segmented image"),
+	outputPathLabel("Output Folder"),
+	outputPathButton("Browse..."),
 	okButton("OK"),
 	cancelButton("Cancel")
 {
@@ -55,6 +58,8 @@ CellOptions::CellOptions() :
 	this->outputBox.setLayout(&this->outputLayout);
 	this->outputLayout.addRow(&this->saveResultsLabel, &this->saveResultsCheckBox);
 	this->outputLayout.addRow(&this->saveImageLabel, &this->saveImageCheckBox);
+	this->outputLayout.addRow(&this->outputPathLabel, &this->outputPathButton);
+	connect(&this->outputPathButton, SIGNAL(released()), this, SLOT(on_outputPathReleased()));
 	
 	this->vbox.addStretch();
 	
@@ -70,7 +75,8 @@ CellOptions::CellOptions() :
 void CellOptions::loadSettings()
 {
 	this->geometry = this->settings.value("mainwin/geometry").toByteArray();
-	this->currentPath = this->settings.value("files/currentPath", ".").toString();
+	this->inputPath = this->settings.value("files/inputPath", ".").toString();
+	this->outputPath = this->settings.value("files/outputPath", ".").toString();
 	this->filtMethodComboBox.setCurrentIndex(this->settings.value("segm/filt_method", FILTER_BILATERAL).toInt());
 	this->watershedCheckBox.setChecked(this->settings.value("segm/use_watershed", false).toBool());
 	this->hullCheckBox.setChecked(this->settings.value("segm/use_hull", false).toBool());
@@ -83,7 +89,8 @@ void CellOptions::loadSettings()
 void CellOptions::saveSettings()
 {
 	this->settings.setValue("mainwin/geometry", this->geometry);
-	this->settings.setValue("files/currentPath", this->currentPath);
+	this->settings.setValue("files/inputPath", this->inputPath);
+	this->settings.setValue("files/outputPath", this->outputPath);
 	this->settings.setValue("segm/filt_method", this->filtMethodComboBox.currentIndex());
 	this->settings.setValue("segm/th_method", this->thMethodComboBox.currentIndex());
 	this->settings.setValue("segm/use_watershed", this->watershedCheckBox.isChecked());
@@ -100,6 +107,16 @@ bool CellOptions::settingsValid()
 	this->minareaLineEdit.text().toDouble(&ok);
 	if (!ok) return false;
 	return true;
+}
+
+void CellOptions::on_outputPathReleased()
+{
+	QString path = QFileDialog::getExistingDirectory(
+		this,
+		"Open Folder", this->outputPath
+	);
+	if (!path.isEmpty())
+		this->outputPath = path;
 }
 
 void CellOptions::on_okReleased()
@@ -128,19 +145,9 @@ void CellOptions::setGeometry(const QByteArray &geometry)
 	this->geometry = geometry;
 }
 
-void CellOptions::setCurrentPath(const QString &path)
-{
-	this->currentPath = path;
-}
-
 QByteArray CellOptions::getGeometry()
 {
 	return this->geometry;
-}
-
-QString CellOptions::getCurrentPath()
-{
-	return this->currentPath;
 }
 
 int CellOptions::getFiltMethod()

@@ -31,7 +31,8 @@ private:
 	QSettings settings;
 	
 	QByteArray geometry;
-	QString currentPath;
+	QString inputPath;
+	QString outputPath;
 	
 	QVBoxLayout vbox;
 	
@@ -57,6 +58,8 @@ private:
 	QCheckBox saveResultsCheckBox;
 	QLabel saveImageLabel;
 	QCheckBox saveImageCheckBox;
+	QLabel outputPathLabel;
+	QPushButton outputPathButton;
 	
 	QHBoxLayout buttonLayout;
 	QPushButton okButton;
@@ -68,6 +71,7 @@ signals:
 	void changed();
 
 public slots:
+	void on_outputPathReleased();
 	void on_okReleased();
 	void on_cancelReleased();
 
@@ -79,10 +83,11 @@ public:
 	void saveSettings();
 	
 	void setGeometry(const QByteArray &geometry);
-	void setCurrentPath(const QString &path);
+	void setInputPath(const QString &path) { this->inputPath = path; }
 	
 	QByteArray getGeometry();
-	QString getCurrentPath();
+	QString getInputPath() { return this->inputPath; }
+	QString getOutputPath() { return this->outputPath; }
 	int getFiltMethod();
 	int getThMethod();
 	bool getUseWatershed();

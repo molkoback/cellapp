@@ -12,7 +12,7 @@
 
 #define CELLAPP_NAME "CellApp"
 #define CELLAPP_ORG "CellApp"
-#define CELLAPP_VERSION "0.3.2"
+#define CELLAPP_VERSION "0.3.3"
 
 class CellApp : public QApplication {
 	Q_OBJECT
