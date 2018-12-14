@@ -10,19 +10,29 @@
 
 #include <QImage>
 #include <QLabel>
-#include <QMouseEvent>
+#include <QWheelEvent>
 
 class ImLabel : public QLabel {
 	Q_OBJECT
 signals:
 	void clicked(int x, int y);
 
+private:
+	float m_zoom;
+	QImage m_im;
+
+protected:
+	void mousePressEvent(QMouseEvent *ev);
+	void wheelEvent(QWheelEvent *e);
+
 public:
-	ImLabel() {}
+	ImLabel();
 	virtual ~ImLabel() {}
 	
+	void update();
+	
 	void setImage(const QImage &im);
-	void mousePressEvent(QMouseEvent *ev);
+	const QImage &image();
 };
 
 #endif

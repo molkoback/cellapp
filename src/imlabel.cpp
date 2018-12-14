@@ -7,16 +7,44 @@
 
 #include "imlabel.hpp"
 
-#include <iostream>
+#include <QApplication>
+
+ImLabel::ImLabel() :
+	m_zoom(1.0)
+{}
+
+void ImLabel::update()
+{
+	QPixmap pixmap = QPixmap::fromImage(m_im).scaled(
+		m_im.width()*m_zoom, m_im.height()*m_zoom,
+		Qt::KeepAspectRatio,
+		Qt::FastTransformation
+	);
+	this->setPixmap(pixmap);
+	this->adjustSize();
+}
 
 void ImLabel::setImage(const QImage &im)
 {
-	QPixmap pixmap = QPixmap::fromImage(im);
-	setPixmap(pixmap);
-	adjustSize();
+	m_im = im;
+	update();
+}
+const QImage &ImLabel::image()
+{
+	return m_im;
 }
 
 void ImLabel::mousePressEvent(QMouseEvent *ev)
 {
-	emit clicked(ev->x(), ev->y());
+	emit clicked(ev->x()/m_zoom, ev->y()/m_zoom);
+}
+
+void ImLabel::wheelEvent(QWheelEvent *e)
+{
+	if (m_im.isNull())
+		return;
+	if (QApplication::keyboardModifiers() == Qt::ControlModifier) {
+		m_zoom = e->angleDelta().y() > 0 ? m_zoom*1.25 : m_zoom/1.25;
+		update();
+	}
 }

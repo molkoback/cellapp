@@ -17,17 +17,15 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QPointer>
-#include <QScrollArea>
 
 class MainWin : public QMainWindow {
 	Q_OBJECT
 private:
 	QPointer<OptionsWin> m_options;
 	
-	QScrollArea m_scrollArea;
-	QImage m_image_orig;
-	QImage m_image_segm;
-	ImLabel m_imageLabel;
+	QImage m_imOrig;
+	QImage m_imSegm;
+	ImLabel m_imLabel;
 	
 	Segmentator m_segmentator;
 	CVContours m_contours;
@@ -45,11 +43,9 @@ private:
 	/* Close event that will be called when the windows is being closed.*/
 	void closeEvent(QCloseEvent *event);
 	
+	void loadOptions();
 	void createMenuBar();
 	void createView();
-	
-	void loadSegmOptions();
-	void saveWinOptions();
 	
 	/* Loads a the given image. */
 	bool loadImage(const QString &file);
@@ -68,7 +64,7 @@ public slots:
 	void on_aboutAction();
 	void on_aboutQtAction();
 	void on_optionsChanged();
-	void on_imageLabelClicked(int x, int y);
+	void on_imLabelClicked(int x, int y);
 
 public:
 	MainWin();

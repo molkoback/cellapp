@@ -22,32 +22,47 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QPixmap>
+#include <QScrollArea>
 #include <QStatusBar>
 #include <QString>
 #include <QStringList>
 
-void MainWin::loadSegmOptions()
+MainWin::MainWin() :
+	m_options(new OptionsWin())
+{
+	// Load window options
+	restoreGeometry(m_options->geometry());
+	m_inputPath = m_options->inputPath();
+	
+	// Load segmentator options
+	loadOptions();
+	
+	createMenuBar();
+	createView();
+	
+	// Options changed
+	connect(m_options, SIGNAL(changed()), this, SLOT(on_optionsChanged()));
+	
+	// Clicks from imLabel
+	connect(&m_imLabel, SIGNAL(clicked(int, int)), this, SLOT(on_imLabelClicked(int, int)));
+}
+
+/* Close event that will be called when the windows is being closed.*/
+void MainWin::closeEvent(QCloseEvent *event)
+{
+	m_options->setGeometry(saveGeometry());
+	m_options->setInputPath(m_inputPath);
+	m_options->save();
+	QMainWindow::closeEvent(event);
+}
+
+void MainWin::loadOptions()
 {
 	m_segmentator.setFiltMethod(m_options->filtMethod());
 	m_segmentator.setThMethod(m_options->thMethod());
 	m_segmentator.setUseWatershed(m_options->useWatershed());
 	m_segmentator.setUseHull(m_options->useHull());
 	m_segmentator.setCellMinArea(m_options->cellMinArea());
-}
-
-void MainWin::saveWinOptions()
-{
-	m_options->setGeometry(saveGeometry());
-	m_options->setInputPath(m_inputPath);
-	
-	m_options->save();
-}
-
-/* Close event that will be called when the windows is being closed.*/
-void MainWin::closeEvent(QCloseEvent *event)
-{
-	saveWinOptions();
-	QMainWindow::closeEvent(event);
 }
 
 void MainWin::createMenuBar()
@@ -111,35 +126,16 @@ void MainWin::createMenuBar()
 
 void MainWin::createView()
 {
-	setCentralWidget(&m_scrollArea);
-	m_scrollArea.setWidget(&m_imageLabel);
-}
-
-MainWin::MainWin() :
-	m_options(new OptionsWin())
-{
-	// Load window options
-	restoreGeometry(m_options->geometry());
-	m_inputPath = m_options->inputPath();
-	
-	// Load segmentator options
-	loadSegmOptions();
-	
-	createMenuBar();
-	createView();
-	
-	// Options changed
-	connect(m_options, SIGNAL(changed()), this, SLOT(on_optionsChanged()));
-	
-	// Clicks from imageLabel
-	connect(&m_imageLabel, SIGNAL(clicked(int, int)), this, SLOT(on_imageLabelClicked(int, int)));
+	QPointer<QScrollArea> scrollArea = new QScrollArea(this);
+	setCentralWidget(scrollArea);
+	scrollArea->setWidget(&m_imLabel);
 }
 
 /* Loads a the given image. */
 bool MainWin::loadImage(const QString &file)
 {
-	m_image_orig = QImage(file);
-	if (m_image_orig.isNull()) {
+	m_imOrig = QImage(file);
+	if (m_imOrig.isNull()) {
 		QMessageBox::information(
 			this, QGuiApplication::applicationDisplayName(),
 			QString("Couldn't open '%1'").arg(file)
@@ -148,7 +144,7 @@ bool MainWin::loadImage(const QString &file)
 	}
 	
 	// Set our image
-	m_imageLabel.setImage(m_image_orig);
+	m_imLabel.setImage(m_imOrig);
 	m_contours.clear();
 	
 	// Enable processing
@@ -213,7 +209,7 @@ void MainWin::on_saveImageAction()
 		"Image Files (*.png *.jpg *.bmp *.gif)"
 	);
 	if (!file.isEmpty()) {
-		m_image_segm.save(file);
+		m_imSegm.save(file);
 		statusMessage(QString("Saved %1").arg(file));
 	}
 }
@@ -239,9 +235,9 @@ void MainWin::on_quitAction()
 void MainWin::on_processAction()
 {
 	// Segment
-	m_segmentator.segment(m_image_orig, m_contours);
-	m_segmentator.drawContours(m_image_orig, m_image_segm, m_contours);
-	m_imageLabel.setImage(m_image_segm);
+	m_segmentator.segment(m_imOrig, m_contours);
+	m_segmentator.drawContours(m_imOrig, m_imSegm, m_contours);
+	m_imLabel.setImage(m_imSegm);
 	
 	// Enable file saving
 	m_saveImageAction->setEnabled(true);
@@ -261,9 +257,9 @@ void MainWin::on_processAllAction()
 		QCoreApplication::processEvents();
 		
 		// Segment
-		m_segmentator.segment(m_image_orig, m_contours);
-		m_segmentator.drawContours(m_image_orig, m_image_segm, m_contours);
-		m_imageLabel.setImage(m_image_segm);
+		m_segmentator.segment(m_imOrig, m_contours);
+		m_segmentator.drawContours(m_imOrig, m_imSegm, m_contours);
+		m_imLabel.setImage(m_imSegm);
 		QCoreApplication::processEvents();
 		
 		QFileInfo info(m_files[i]);
@@ -277,7 +273,7 @@ void MainWin::on_processAllAction()
 		// Save image
 		if (m_options->saveImage()) {
 			QString imfile = outputPath + "/" + info.baseName() + QString("_segm.png");
-			m_image_segm.save(imfile);
+			m_imSegm.save(imfile);
 		}
 	}
 	statusMessage(QString("Processed %1 files").arg(n));
@@ -308,14 +304,14 @@ void MainWin::on_aboutQtAction()
 void MainWin::on_optionsChanged()
 {
 	m_contours.clear();
-	loadSegmOptions();
+	loadOptions();
 }
 
-void MainWin::on_imageLabelClicked(int x, int y)
+void MainWin::on_imLabelClicked(int x, int y)
 {
 	if (!m_contours.empty()) {
 		m_segmentator.removeContour(m_contours, x, y);
-		m_segmentator.drawContours(m_image_orig, m_image_segm, m_contours);
-		m_imageLabel.setImage(m_image_segm);
+		m_segmentator.drawContours(m_imOrig, m_imSegm, m_contours);
+		m_imLabel.setImage(m_imSegm);
 	}
 }
