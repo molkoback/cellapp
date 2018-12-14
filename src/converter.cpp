@@ -10,7 +10,7 @@
 void Converter::UMat2QImage(const cv::UMat &src, QImage &dst)
 {
 	cv::Mat mat;
-	cv::cvtColor(src, mat, CV_BGR2RGB);
+	cv::cvtColor(src, mat, cv::COLOR_BGR2RGB);
 	QImage tmp(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
 	dst = tmp.copy(); // Create deep copy
 }
@@ -21,5 +21,5 @@ void Converter::QImage2UMat(const QImage &src, cv::UMat &dst)
 	cv::Mat tmp(im.height(), im.width(), CV_8UC3, (void*)im.bits(), im.bytesPerLine());
 	cv::UMat mat;
 	tmp.copyTo(mat);
-	cv::cvtColor(mat, dst, CV_RGB2BGR);
+	cv::cvtColor(mat, dst, cv::COLOR_RGB2BGR);
 }

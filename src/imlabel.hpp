@@ -5,21 +5,21 @@
  * as published by Sam Hocevar. See the COPYING file for more details.
  */
 
-#ifndef CELLLABEL_H
-#define CELLLABEL_H
+#ifndef IMLABEL_H
+#define IMLABEL_H
 
 #include <QImage>
 #include <QLabel>
 #include <QMouseEvent>
 
-class CellLabel : public QLabel {
+class ImLabel : public QLabel {
 	Q_OBJECT
 signals:
 	void clicked(int x, int y);
 
 public:
-	CellLabel() {}
-	virtual ~CellLabel() {}
+	ImLabel() {}
+	virtual ~ImLabel() {}
 	
 	void setImage(const QImage &im);
 	void mousePressEvent(QMouseEvent *ev);

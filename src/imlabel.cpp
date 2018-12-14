@@ -5,18 +5,18 @@
  * as published by Sam Hocevar. See the COPYING file for more details.
  */
 
-#include "celllabel.hpp"
+#include "imlabel.hpp"
 
 #include <iostream>
 
-void CellLabel::setImage(const QImage &im)
+void ImLabel::setImage(const QImage &im)
 {
 	QPixmap pixmap = QPixmap::fromImage(im);
-	this->setPixmap(pixmap);
-	this->adjustSize();
+	setPixmap(pixmap);
+	adjustSize();
 }
 
-void CellLabel::mousePressEvent(QMouseEvent *ev)
+void ImLabel::mousePressEvent(QMouseEvent *ev)
 {
 	emit clicked(ev->x(), ev->y());
 }

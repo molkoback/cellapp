@@ -5,17 +5,21 @@
  * as published by Sam Hocevar. See the COPYING file for more details.
  */
 
-#ifndef CELLAPP_H
-#define CELLAPP_H
+#ifndef APP_H
+#define APP_H
 
 #include <QApplication>
 
-class CellApp : public QApplication {
+#define APP_NAME "CellApp"
+#define APP_ORG "CellApp"
+#define APP_VERSION "0.4.0"
+
+class App : public QApplication {
 	Q_OBJECT
 private:
 public:
-	CellApp(int argc, char *argv[]);
-	virtual ~CellApp() {}
+	App(int argc, char *argv[]);
+	virtual ~App() {}
 };
 
 #endif

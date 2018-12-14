@@ -29,12 +29,12 @@
 #define CONTOUR_DRAW_COLOR cv::Vec3b(0, 255, 0)
 
 Segmentator::Segmentator() :
-	filt_method(THRESHOLD_HSV),
-	th_method(FILTER_BILATERAL),
-	use_watershed(0),
-	use_hull(0),
-	prune_checks(CHECK_ALL),
-	cell_minarea(25.0)
+	m_filtMethod(THRESHOLD_HSV),
+	m_thMethod(FILTER_BILATERAL),
+	m_useWatershed(0),
+	m_useHull(0),
+	m_pruneChecks(CHECK_ALL),
+	m_cellMinArea(25.0)
 {}
 
 void Segmentator::binarize(cv::UMat &src, cv::UMat &dst)
@@ -42,14 +42,14 @@ void Segmentator::binarize(cv::UMat &src, cv::UMat &dst)
 	cv::Mat mat;
 	cv::UMat umat;
 	
-	switch (this->th_method) {
+	switch (m_thMethod) {
 	case THRESHOLD_HSV:
 		// NOTE: UMat here will crash on cleanup
-		cv::cvtColor(src, mat, CV_BGR2HSV_FULL);
+		cv::cvtColor(src, mat, cv::COLOR_BGR2HSV_FULL);
 		cv::inRange(mat, HSV_COLOR_LOW, HSV_COLOR_HIGH, dst);
 		break;
 	case THRESHOLD_OTSU:
-		cv::cvtColor(src, umat, CV_BGR2GRAY);
+		cv::cvtColor(src, umat, cv::COLOR_BGR2GRAY);
 		cv::threshold(umat, dst, 0, 255, cv::THRESH_BINARY_INV | cv::THRESH_OTSU);
 		break;
 	default:
@@ -59,7 +59,7 @@ void Segmentator::binarize(cv::UMat &src, cv::UMat &dst)
 
 void Segmentator::filter(cv::UMat &src, cv::UMat &dst)
 {
-	switch (this->filt_method) {
+	switch (m_filtMethod) {
 	case FILTER_NONE:
 		src.copyTo(dst);
 		break;
@@ -113,7 +113,7 @@ void Segmentator::watershed(cv::UMat &im, cv::UMat &im_b, cv::UMat &dst)
 void Segmentator::findContours(cv::UMat &im_b, CVContours &contours)
 {
 	std::vector<cv::Vec4i> hierarchy;
-	if (this->use_hull) {
+	if (m_useHull) {
 		// Find contours and then calculate their hulls
 		CVContours tmp;
 		cv::findContours(im_b, tmp, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
@@ -132,8 +132,8 @@ void Segmentator::findContours(cv::UMat &im_b, CVContours &contours)
 bool Segmentator::contourValid(const CVContour &cnt)
 {
 	bool ret = 1;
-	if (this->prune_checks & CHECK_AREA)
-		ret &= cv::contourArea(cnt) >= this->cell_minarea;
+	if (m_pruneChecks & CHECK_AREA)
+		ret &= cv::contourArea(cnt) >= m_cellMinArea;
 	return ret;
 }
 
@@ -141,7 +141,7 @@ void Segmentator::pruneContours(CVContours &contours)
 {
 	contours.erase(
 		std::remove_if(contours.begin(), contours.end(), [this] (CVContour &cnt) {
-			return !this->contourValid(cnt);
+			return !contourValid(cnt);
 		}),
 		contours.end()
 	);
@@ -152,14 +152,14 @@ void Segmentator::segment(const QImage &src, CVContours &contours)
 	cv::UMat im, im_filt, im_b, im_b_ws;
 	
 	Converter::QImage2UMat(src, im);
-	this->filter(im, im_filt);
-	this->binarize(im_filt, im_b);
-	if (this->use_watershed) {
-		this->watershed(im, im_b, im_b_ws);
+	filter(im, im_filt);
+	binarize(im_filt, im_b);
+	if (m_useWatershed) {
+		watershed(im, im_b, im_b_ws);
 		im_b = im_b_ws;
 	}
-	this->findContours(im_b, contours);
-	this->pruneContours(contours);
+	findContours(im_b, contours);
+	pruneContours(contours);
 }
 
 void Segmentator::drawContours(const QImage &src, QImage &dst, CVContours &contours)

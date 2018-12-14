@@ -8,41 +8,38 @@
 #ifndef CELLMAINWIN_H
 #define CELLMAINWIN_H
 
-#include "celloptions.hpp"
-#include "celllabel.hpp"
+#include "optionswin.hpp"
+#include "imlabel.hpp"
 #include "types.hpp"
 #include "segmentator.hpp"
 #include "analyzer.hpp"
 
 #include <QMainWindow>
 #include <QLabel>
+#include <QPointer>
 #include <QScrollArea>
 
-#include <memory>
-
-class CellOptions;
-
-class CellMainWin : public QMainWindow {
+class MainWin : public QMainWindow {
 	Q_OBJECT
 private:
-	std::unique_ptr<CellOptions> optionsWin;
+	QPointer<OptionsWin> m_options;
 	
-	QScrollArea scrollArea;
-	QImage image_orig;
-	QImage image_segm;
-	CellLabel imageLabel;
+	QScrollArea m_scrollArea;
+	QImage m_image_orig;
+	QImage m_image_segm;
+	ImLabel m_imageLabel;
 	
-	Segmentator segmentator;
-	CVContours contours;
-	Analyzer analyzer;
+	Segmentator m_segmentator;
+	CVContours m_contours;
+	Analyzer m_analyzer;
 	
-	QAction *saveImageAction;
-	QAction *saveResultsAction;
-	QAction *processAction;
-	QAction *processAllAction;
+	QAction *m_saveImageAction;
+	QAction *m_saveResultsAction;
+	QAction *m_processAction;
+	QAction *m_processAllAction;
 	
-	QString inputPath;
-	QStringList files;
+	QString m_inputPath;
+	QStringList m_files;
 
 private:
 	/* Close event that will be called when the windows is being closed.*/
@@ -74,8 +71,8 @@ public slots:
 	void on_imageLabelClicked(int x, int y);
 
 public:
-	CellMainWin();
-	virtual ~CellMainWin() {}
+	MainWin();
+	virtual ~MainWin() {}
 };
 
 #endif

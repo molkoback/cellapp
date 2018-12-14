@@ -22,12 +22,12 @@ find_package(Qt5 REQUIRED
 # Sources
 set(CELL_SRC
 	src/analyzer.cpp
-	src/main.cpp
-	src/cellapp.cpp
-	src/celllabel.cpp
-	src/cellmainwin.cpp
-	src/celloptions.cpp
+	src/app.cpp
 	src/converter.cpp
+	src/imlabel.cpp
+	src/main.cpp
+	src/mainwin.cpp
+	src/optionswin.cpp
 	src/segmentator.cpp
 )
 set(CELL_NAME "cellapp")

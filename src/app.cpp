@@ -5,21 +5,12 @@
  * as published by Sam Hocevar. See the COPYING file for more details.
  */
 
-#ifndef CELLAPP_H
-#define CELLAPP_H
+#include "app.hpp"
 
-#include <QApplication>
-
-#define CELLAPP_NAME "CellApp"
-#define CELLAPP_ORG "CellApp"
-#define CELLAPP_VERSION "0.3.3"
-
-class CellApp : public QApplication {
-	Q_OBJECT
-private:
-public:
-	CellApp(int argc, char *argv[]);
-	virtual ~CellApp() {}
-};
-
-#endif
+App::App(int argc, char *argv[]) :
+	QApplication(argc, argv)
+{
+	QApplication::setOrganizationName(APP_ORG);
+	QApplication::setApplicationName(APP_NAME);
+	QApplication::setApplicationVersion(APP_VERSION);
+}

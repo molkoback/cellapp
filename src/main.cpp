@@ -5,13 +5,13 @@
  * as published by Sam Hocevar. See the COPYING file for more details.
  */
 
-#include "cellapp.hpp"
-#include "cellmainwin.hpp"
+#include "app.hpp"
+#include "mainwin.hpp"
 
 int main(int argc, char *argv[])
 {
-	CellApp app(argc, argv);
-	CellMainWin win;
+	App app(argc, argv);
+	MainWin win;
 	win.show();
 	return app.exec();
 }

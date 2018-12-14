@@ -55,7 +55,7 @@ void Analyzer::process(CVContours &contours, std::vector<ContourParameters> &par
 			largest_y = p.y;
 		}
 		
-		p.ratio = this->contourRatio(cnt);
+		p.ratio = contourRatio(cnt);
 		
 		params.push_back(p);
 	}
@@ -84,7 +84,7 @@ bool Analyzer::run(CVContours &contours, const QString &file)
 	QTextStream stream(&fp);
 	
 	std::vector<ContourParameters> params;
-	this->process(contours, params);
-	this->writeResults(stream, params);
+	process(contours, params);
+	writeResults(stream, params);
 	return true;
 }

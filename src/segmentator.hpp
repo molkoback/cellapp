@@ -34,14 +34,14 @@ enum prune_check_methods {
 
 class Segmentator {
 private:
-	int filt_method;
-	int th_method;
+	int m_filtMethod;
+	int m_thMethod;
 	
-	bool use_watershed;
-	bool use_hull;
+	bool m_useWatershed;
+	bool m_useHull;
 	
-	int prune_checks;
-	double cell_minarea;
+	int m_pruneChecks;
+	double m_cellMinArea;
 	
 	void binarize(cv::UMat &src, cv::UMat &dst);
 	void filter(cv::UMat &src, cv::UMat &dst);
@@ -54,12 +54,12 @@ public:
 	Segmentator();
 	~Segmentator() {}
 	
-	void setFiltMethod(int filt_method) { this->filt_method = filt_method; }
-	void setThMethod(int th_method) { this->th_method = th_method; }
-	void setUseWatershed(bool use_watershed) { this->use_watershed = use_watershed; }
-	void setUseHull(bool use_hull) { this->use_hull = use_hull; }
-	void setPruneChecks(int prune_checks) { this->prune_checks = prune_checks; }
-	void setCellMinArea(double cell_minarea) { this->cell_minarea = cell_minarea; }
+	void setFiltMethod(int filtMethod) { m_filtMethod = filtMethod; }
+	void setThMethod(int thMethod) { m_thMethod = thMethod; }
+	void setUseWatershed(bool useWatershed) { m_useWatershed = useWatershed; }
+	void setUseHull(bool useHull) { m_useHull = useHull; }
+	void setPruneChecks(int pruneChecks) { m_pruneChecks = pruneChecks; }
+	void setCellMinArea(double cellMinArea) { m_cellMinArea = cellMinArea; }
 	
 	void segment(const QImage &src, CVContours &contours);
 	void drawContours(const QImage &src, QImage &dst, CVContours &contours);
