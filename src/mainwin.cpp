@@ -1,8 +1,7 @@
 /* Copyright (c) 2018 Eero Molkoselkä <eero.molkoselka@gmail.com>
  * 
- * This work is free. You can redistribute it and/or modify it under the
- * terms of the Do What The Fuck You Want To Public License, Version 2,
- * as published by Sam Hocevar. See the COPYING file for more details.
+ * This work is licensed under the terms of the MIT license. See LICENSE file
+ * for more information.
  */
 
 #include "mainwin.hpp"
@@ -292,7 +291,7 @@ void MainWin::on_aboutAction()
 		"<br>"
 		"Copyright (C) 2018 <a href=\"mailto:eero.molkoselka@gmail.com\">Eero Molkoselkä</a><br>"
 		"<br>"
-		"This software is licensed under WTFPL. See COPYING file for details.<br>"
+		"This work is licensed under the terms of the MIT license. See LICENSE file for more information.<br>"
 	).arg(APP_NAME, APP_VERSION);
 	QMessageBox::about(this, QString("About %1").arg(APP_NAME), msg);
 }
