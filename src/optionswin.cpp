@@ -37,23 +37,24 @@ OptionsWin::OptionsWin() :
 	m_filtMethodComboBox.addItem("None");
 	m_filtMethodComboBox.addItem("Gaussian");
 	m_filtMethodComboBox.addItem("Bilateral");
-	
 	QPointer<QLabel> thMethodLabel = new QLabel("Threshold method", this);
 	segmLayout->addRow(thMethodLabel, &m_thMethodComboBox);
 	m_thMethodComboBox.addItem("Color based");
 	m_thMethodComboBox.addItem("Otsu's method");
-	
 	QPointer<QLabel> watershedLabel = new QLabel("Use watershed", this);
 	segmLayout->addRow(watershedLabel, &m_watershedCheckBox);
-	QPointer<QLabel> hullLabel = new QLabel("Use convex hull", this);
-	segmLayout->addRow(hullLabel, &m_hullCheckBox);
 	
 	// Cells
 	QPointer<QGroupBox> cellBox = new QGroupBox("Cells", this);
 	vbox->addWidget(cellBox);
 	QPointer<QFormLayout> cellLayout = new QFormLayout();
 	cellBox->setLayout(cellLayout);
-	QPointer<QLabel> minAreaLabel = new QLabel("Minimum cell area (px)", this);
+	QPointer<QLabel> cellShapeLabel = new QLabel("Shape accuracy", this);
+	cellLayout->addRow(cellShapeLabel, &m_cellShapeComboBox);
+	m_cellShapeComboBox.addItem("Accurate");
+	m_cellShapeComboBox.addItem("Approximation");
+	m_cellShapeComboBox.addItem("Hull");
+	QPointer<QLabel> minAreaLabel = new QLabel("Minimum area (px)", this);
 	cellLayout->addRow(minAreaLabel, &m_minareaLineEdit);
 	
 	// Output files
@@ -91,11 +92,12 @@ void OptionsWin::load()
 	m_outputPath = m_settings.value("files/outputPath", ".").toString();
 	m_filtMethodComboBox.setCurrentIndex(m_settings.value("segm/filt_method", FILTER_BILATERAL).toInt());
 	m_watershedCheckBox.setChecked(m_settings.value("segm/use_watershed", false).toBool());
-	m_hullCheckBox.setChecked(m_settings.value("segm/use_hull", false).toBool());
+	m_cellShapeComboBox.setCurrentIndex(m_settings.value("segm/cell_shape", SHAPE_ACCURATE).toInt());
 	m_thMethodComboBox.setCurrentIndex(m_settings.value("segm/th_method", THRESHOLD_HSV).toInt());
 	m_minareaLineEdit.setText(m_settings.value("cell/minarea", 25.0).toString());
 	m_saveResultsCheckBox.setChecked(m_settings.value("output/save_results", true).toBool());
 	m_saveImageCheckBox.setChecked(m_settings.value("output/save_image", false).toBool());
+	emit loaded();
 }
 
 void OptionsWin::save()
@@ -106,11 +108,12 @@ void OptionsWin::save()
 	m_settings.setValue("segm/filt_method", m_filtMethodComboBox.currentIndex());
 	m_settings.setValue("segm/th_method", m_thMethodComboBox.currentIndex());
 	m_settings.setValue("segm/use_watershed", m_watershedCheckBox.isChecked());
-	m_settings.setValue("segm/use_hull", m_hullCheckBox.isChecked());
+	m_settings.setValue("segm/cell_shape", m_cellShapeComboBox.currentIndex());
 	m_settings.setValue("cell/minarea", m_minareaLineEdit.text().toDouble());
 	m_settings.setValue("output/save_results", m_saveResultsCheckBox.isChecked());
 	m_settings.setValue("output/save_image", m_saveImageCheckBox.isChecked());
 	m_settings.sync();
+	emit saved();
 }
 
 bool OptionsWin::settingsValid()
@@ -135,7 +138,6 @@ void OptionsWin::on_okReleased()
 {
 	if (settingsValid()) {
 		save();
-		emit changed();
 		hide();
 	}
 	else {
@@ -154,10 +156,17 @@ void OptionsWin::on_cancelReleased()
 
 void OptionsWin::setGeometry(const QByteArray &geometry) { m_geometry = geometry; }
 QByteArray OptionsWin::geometry() { return m_geometry; }
-int OptionsWin::filtMethod() { return m_filtMethodComboBox.currentIndex(); }
-int OptionsWin::thMethod() { return m_thMethodComboBox.currentIndex(); }
-bool OptionsWin::useWatershed() { return m_watershedCheckBox.isChecked(); }
-bool OptionsWin::useHull() { return m_hullCheckBox.isChecked(); }
-double OptionsWin::cellMinArea() { return m_minareaLineEdit.text().toDouble(); }
+
+struct segm_param OptionsWin::segmParam()
+{
+	segm_param param;
+	param.filtMethod = m_filtMethodComboBox.currentIndex();
+	param.thMethod = m_thMethodComboBox.currentIndex();
+	param.useWatershed = m_watershedCheckBox.isChecked();
+	param.cellShape = m_cellShapeComboBox.currentIndex();
+	param.cellMinArea = m_minareaLineEdit.text().toDouble();
+	return param;
+}
+
 bool OptionsWin::saveResults() { return m_saveResultsCheckBox.isChecked(); }
 bool OptionsWin::saveImage() { return m_saveImageCheckBox.isChecked(); }

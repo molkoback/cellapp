@@ -29,6 +29,7 @@ void ImLabel::setImage(const QImage &im)
 	m_im = im;
 	update();
 }
+
 const QImage &ImLabel::image()
 {
 	return m_im;

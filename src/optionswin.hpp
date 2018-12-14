@@ -15,6 +15,14 @@
 #include <QSettings>
 #include <QString>
 
+struct segm_param {
+	int filtMethod;
+	int thMethod;
+	bool useWatershed;
+	int cellShape;
+	int cellMinArea;
+};
+
 class OptionsWin : public QDialog {
 	Q_OBJECT
 private:
@@ -27,20 +35,13 @@ private:
 	QComboBox m_filtMethodComboBox;
 	QComboBox m_thMethodComboBox;
 	QCheckBox m_watershedCheckBox;
-	QCheckBox m_hullCheckBox;
+	QComboBox m_cellShapeComboBox;
 	QLineEdit m_minareaLineEdit;
 	QCheckBox m_saveResultsCheckBox;
 	QCheckBox m_saveImageCheckBox;
-	
+
+private:
 	bool settingsValid();
-
-signals:
-	void changed();
-
-public slots:
-	void on_outputPathReleased();
-	void on_okReleased();
-	void on_cancelReleased();
 
 public:
 	OptionsWin();
@@ -55,13 +56,18 @@ public:
 	QByteArray geometry();
 	QString inputPath() { return m_inputPath; }
 	QString outputPath() { return m_outputPath; }
-	int filtMethod();
-	int thMethod();
-	bool useWatershed();
-	bool useHull();
-	double cellMinArea();
+	struct segm_param segmParam();
 	bool saveResults();
 	bool saveImage();
+
+signals:
+	void loaded();
+	void saved();
+
+public slots:
+	void on_outputPathReleased();
+	void on_okReleased();
+	void on_cancelReleased();
 };
 
 #endif

@@ -52,6 +52,10 @@ private:
 	
 	void statusMessage(const QString &msg);
 
+public:
+	MainWin();
+	virtual ~MainWin() {}
+
 public slots:
 	void on_openFileAction();
 	void on_openDirAction();
@@ -65,10 +69,6 @@ public slots:
 	void on_aboutQtAction();
 	void on_optionsChanged();
 	void on_imLabelClicked(int x, int y);
-
-public:
-	MainWin();
-	virtual ~MainWin() {}
 };
 
 #endif

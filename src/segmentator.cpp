@@ -11,7 +11,7 @@
 
 #include <algorithm>
 #include <exception>
-#include <cstddef>
+#include <vector>
 
 /* HSV threshold range. */
 #define HSV_COLOR_LOW cv::Scalar(10, 0, 0)
@@ -28,11 +28,14 @@
 /* Contour draw colors. */
 #define CONTOUR_DRAW_COLOR cv::Vec3b(0, 255, 0)
 
+/* Contour approximation epsilon factor. */
+#define APPROX_EPSILON 0.001
+
 Segmentator::Segmentator() :
 	m_filtMethod(THRESHOLD_HSV),
 	m_thMethod(FILTER_BILATERAL),
 	m_useWatershed(0),
-	m_useHull(0),
+	m_cellShape(SHAPE_ACCURATE),
 	m_pruneChecks(CHECK_ALL),
 	m_cellMinArea(25.0)
 {}
@@ -112,20 +115,32 @@ void Segmentator::watershed(cv::UMat &im, cv::UMat &im_b, cv::UMat &dst)
 
 void Segmentator::findContours(cv::UMat &im_b, CVContours &contours)
 {
+	CVContours tmp;
 	std::vector<cv::Vec4i> hierarchy;
-	if (m_useHull) {
-		// Find contours and then calculate their hulls
-		CVContours tmp;
-		cv::findContours(im_b, tmp, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+	cv::findContours(im_b, tmp, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+	
+	switch (m_cellShape) {
+	case SHAPE_ACCURATE:
+		contours = tmp;
+		break;
+	case SHAPE_APPROX:
+		for (const auto &cnt : tmp) {
+			CVContour approx;
+			double epsilon = APPROX_EPSILON * cv::arcLength(cnt, true);
+			cv::approxPolyDP(cnt, approx, epsilon, true);
+			contours.push_back(approx);
+		}
+		break;
+	case SHAPE_HULL:
 		for (const auto &cnt : tmp) {
 			CVContour hull;
 			cv::convexHull(cnt, hull);
 			contours.push_back(hull);
 		}
-	}
-	else {
-		// Find contours
-		cv::findContours(im_b, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+		break;
+	default:
+		throw std::runtime_error("invalid shape approximation method");
+		break;
 	}
 }
 

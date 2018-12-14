@@ -41,7 +41,7 @@ MainWin::MainWin() :
 	createView();
 	
 	// Options changed
-	connect(m_options, SIGNAL(changed()), this, SLOT(on_optionsChanged()));
+	connect(m_options, SIGNAL(saved()), this, SLOT(on_optionsChanged()));
 	
 	// Clicks from imLabel
 	connect(&m_imLabel, SIGNAL(clicked(int, int)), this, SLOT(on_imLabelClicked(int, int)));
@@ -58,11 +58,12 @@ void MainWin::closeEvent(QCloseEvent *event)
 
 void MainWin::loadOptions()
 {
-	m_segmentator.setFiltMethod(m_options->filtMethod());
-	m_segmentator.setThMethod(m_options->thMethod());
-	m_segmentator.setUseWatershed(m_options->useWatershed());
-	m_segmentator.setUseHull(m_options->useHull());
-	m_segmentator.setCellMinArea(m_options->cellMinArea());
+	struct segm_param param = m_options->segmParam();
+	m_segmentator.setFiltMethod(param.filtMethod);
+	m_segmentator.setThMethod(param.thMethod);
+	m_segmentator.setUseWatershed(param.useWatershed);
+	m_segmentator.setCellShape(param.cellShape);
+	m_segmentator.setCellMinArea(param.cellMinArea);
 }
 
 void MainWin::createMenuBar()

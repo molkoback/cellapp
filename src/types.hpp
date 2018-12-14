@@ -5,8 +5,8 @@
  * as published by Sam Hocevar. See the COPYING file for more details.
  */
 
-#ifndef TYPES_HPP
-#define TYPES_HPP
+#ifndef TYPES_H
+#define TYPES_H
 
 #include <opencv2/opencv.hpp>
 

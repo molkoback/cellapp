@@ -14,12 +14,12 @@
 
 class ImLabel : public QLabel {
 	Q_OBJECT
-signals:
-	void clicked(int x, int y);
-
 private:
 	float m_zoom;
 	QImage m_im;
+
+private:
+	void update();
 
 protected:
 	void mousePressEvent(QMouseEvent *ev);
@@ -29,10 +29,11 @@ public:
 	ImLabel();
 	virtual ~ImLabel() {}
 	
-	void update();
-	
 	void setImage(const QImage &im);
 	const QImage &image();
+
+signals:
+	void clicked(int x, int y);
 };
 
 #endif

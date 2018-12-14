@@ -13,8 +13,6 @@
 #include <opencv2/opencv.hpp>
 #include <QImage>
 
-#include <vector>
-
 enum threshold_methods {
 	THRESHOLD_HSV = 0,
 	THRESHOLD_OTSU
@@ -32,17 +30,22 @@ enum prune_check_methods {
 	CHECK_ALL = 1
 };
 
+enum cell_shapes {
+	SHAPE_ACCURATE = 0,
+	SHAPE_APPROX,
+	SHAPE_HULL
+};
+
 class Segmentator {
 private:
 	int m_filtMethod;
 	int m_thMethod;
-	
 	bool m_useWatershed;
-	bool m_useHull;
-	
+	int m_cellShape;
 	int m_pruneChecks;
 	double m_cellMinArea;
-	
+
+private:
 	void binarize(cv::UMat &src, cv::UMat &dst);
 	void filter(cv::UMat &src, cv::UMat &dst);
 	void watershed(cv::UMat &im, cv::UMat &im_b, cv::UMat &dst);
@@ -57,7 +60,7 @@ public:
 	void setFiltMethod(int filtMethod) { m_filtMethod = filtMethod; }
 	void setThMethod(int thMethod) { m_thMethod = thMethod; }
 	void setUseWatershed(bool useWatershed) { m_useWatershed = useWatershed; }
-	void setUseHull(bool useHull) { m_useHull = useHull; }
+	void setCellShape(int cellShape) { m_cellShape = cellShape; }
 	void setPruneChecks(int pruneChecks) { m_pruneChecks = pruneChecks; }
 	void setCellMinArea(double cellMinArea) { m_cellMinArea = cellMinArea; }
 	
